@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">起点Demo</string>
+    <string name="app_name">企划星 planstar_app</string>
 
-    <string name="login_title">起点读书</string>
+    <string name="login_title">企划星</string>
     <string name="login_subtitle">原生 + Flutter 混合开发 Demo</string>
     <string name="login_username_hint">手机号 / 用户名</string>
     <string name="login_password_hint">密码</string>
