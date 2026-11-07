@@ -11,7 +11,7 @@ import 'services/native_bridge.dart';
 const _placeholderBook = Book(
   bookId: 1013391,
   bookName: '示例书籍',
-  authorName: '起点作者',
+  authorName: '企划星作者',
   categoryName: '玄幻',
   description: '这是一本示例书籍，用于演示书详情页面的混合开发容器跳转。',
   chapterCount: 12,
@@ -27,17 +27,17 @@ void main() {
   // 与原生侧握手：引擎已就绪，原生可以开始主动推送（未就绪期间的消息会补发）
   NativeBridge.notifyReady();
   final route = ui.PlatformDispatcher.instance.defaultRouteName;
-  runApp(QidianFlutterApp(route: route));
+  runApp(PlanstarFlutterApp(route: route));
 }
 
-class QidianFlutterApp extends StatelessWidget {
+class PlanstarFlutterApp extends StatelessWidget {
   final String route;
-  const QidianFlutterApp({super.key, required this.route});
+  const PlanstarFlutterApp({super.key, required this.route});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '起点读书 Demo',
+      title: '企划星 planstar_app',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(

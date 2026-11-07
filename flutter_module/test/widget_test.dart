@@ -2,11 +2,11 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:qidian_flutter/main.dart';
+import 'package:planstar_flutter/main.dart';
 
 void main() {
   testWidgets('Module renders category page smoke test', (WidgetTester tester) async {
-    await tester.pumpWidget(const QidianFlutterApp(route: '/book_category'));
+    await tester.pumpWidget(const PlanstarFlutterApp(route: '/book_category'));
     await tester.pump();
 
     // 书城页应包含书名与搜索占位。

@@ -1,4 +1,4 @@
-name: qidian_flutter
+name: planstar_flutter
 description: "A new Flutter module project."
 
 # The following defines the version and build number for your application.
@@ -42,7 +42,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # 原项目（起点读书）自带字体，导入保持样式一致
+  # 原项目（企划星）自带字体，导入保持样式一致
   fonts:
     - family: YuewenFont
       fonts:
@@ -95,5 +95,5 @@ flutter:
   # identifiers, which may be completely independent or the same as these.
   module:
     androidX: true
-    androidPackage: com.qidian.qidian_flutter
-    iosBundleIdentifier: com.qidian.qidianFlutter
+    androidPackage: top.planstar.app.flutter
+    iosBundleIdentifier: top.planstar.app.flutter
