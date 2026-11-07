@@ -1,14 +1,19 @@
 package top.planstar.app.presentation.main
 
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
+import android.os.SystemClock
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import top.planstar.app.R
+import top.planstar.app.PlanstarApp
 import top.planstar.app.core.ui.applyInsetsPadding
 import top.planstar.app.core.ui.enableEdgeToEdge
 import top.planstar.app.core.ui.setSystemBarStyle
 import top.planstar.app.databinding.ActivityMainBinding
 import top.planstar.app.presentation.flutter.BaseFlutterContainer
+import top.planstar.app.presentation.flutter.BridgeProtocol
 import io.flutter.embedding.android.FlutterFragment
 
 /**
@@ -50,17 +55,29 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.bottomNav.setOnItemSelectedListener { item ->
+            // 计时起点：Tab 选中回调开始；仅 Flutter Tab 会消费该打点
+            val startedAt = SystemClock.elapsedRealtime()
             when (item.itemId) {
                 R.id.nav_bookshelf -> switchTo(TAG_BOOKSHELF, lightStatusBar = true) {
                     BookshelfFragment()
                 }
-                R.id.nav_bookcity -> switchTo(TAG_BOOKCITY, lightStatusBar = false) {
+                R.id.nav_bookcity -> switchTo(
+                    TAG_BOOKCITY,
+                    lightStatusBar = false,
+                    perfRoute = BaseFlutterContainer.ROUTE_BOOK_CATEGORY,
+                    startedAt = startedAt,
+                ) {
                     flutterTab(BaseFlutterContainer.ROUTE_BOOK_CATEGORY)
                 }
                 R.id.nav_listening -> switchTo(TAG_LISTENING, lightStatusBar = true) {
                     ListeningFragment()
                 }
-                R.id.nav_mine -> switchTo(TAG_MINE, lightStatusBar = false) {
+                R.id.nav_mine -> switchTo(
+                    TAG_MINE,
+                    lightStatusBar = false,
+                    perfRoute = BaseFlutterContainer.ROUTE_MINE,
+                    startedAt = startedAt,
+                ) {
                     flutterTab(BaseFlutterContainer.ROUTE_MINE)
                 }
                 else -> return@setOnItemSelectedListener false
@@ -88,6 +105,8 @@ class MainActivity : AppCompatActivity() {
         tag: String,
         lightStatusBar: Boolean,
         immediate: Boolean = false,
+        perfRoute: String? = null,
+        startedAt: Long = 0L,
         create: () -> Fragment,
     ): Fragment {
         // 原生 Tab 标题栏为白色 → 深色状态栏图标；Flutter Tab 为红色 AppBar → 白色图标
@@ -108,7 +127,21 @@ class MainActivity : AppCompatActivity() {
         // commit 让点击/水波纹先出一帧，事务在下一个 vsync 执行。
         if (immediate) transaction.commitNow() else transaction.commit()
         currentFragment = target
+        // 终点：FlutterFragment 已提交挂载（commit 下事务在下一帧执行，首帧耗时不再阻塞点击响应）
+        if (perfRoute != null) logTabSwitch(perfRoute, startedAt)
         return target
+    }
+
+    /** 仅调试包输出 Tab 切换埋点，release 不产生日志 */
+    private fun logTabSwitch(route: String, startedAt: Long) {
+        val debuggable = (PlanstarApp.appContext.applicationInfo.flags and
+            ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        if (!debuggable) return
+        val cost = SystemClock.elapsedRealtime() - startedAt
+        Log.d(
+            BridgeProtocol.TAG,
+            "[${BridgeProtocol.TAG}] tab_switch route=$route cost=${cost}ms",
+        )
     }
 
     private fun flutterTab(route: String): Fragment =

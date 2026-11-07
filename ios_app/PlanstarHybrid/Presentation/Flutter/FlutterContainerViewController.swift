@@ -10,6 +10,9 @@ final class FlutterContainerViewController: UIViewController {
 
     private let route: String
 
+    /// 首次完成 Flutter 子控制器挂载后的回调：宿主用它统计 Tab 切换耗时。
+    var onDidMount: (() -> Void)?
+
     private lazy var flutterViewController = FlutterViewController(
         engine: BaseFlutterContainer.shared.engine(for: route),
         nibName: nil,
@@ -40,6 +43,8 @@ final class FlutterContainerViewController: UIViewController {
             flutterViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
         flutterViewController.didMove(toParent: self)
+        onDidMount?()
+        onDidMount = nil
     }
 
     /// Flutter 页面顶部为红色 AppBar → 白色状态栏图标
