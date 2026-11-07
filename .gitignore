@@ -49,3 +49,6 @@ DerivedData/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+_archive/
+.verification/
