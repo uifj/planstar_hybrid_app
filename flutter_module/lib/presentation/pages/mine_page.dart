@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../services/native_bridge.dart';
+import '../../core/app_theme.dart';
+import '../../core/bridge_protocol.dart';
+import '../../services/native_bridge.dart';
 
 /// 我的页（对应原生 app 中的 MineHistoryFlutterActivity / 我的 Tab）。
 /// 通过 MethodChannel 读取原生 MMKV 中的登录态。
 ///
-/// 登录态由原生主动推送（[NativeBridge.loginStateChanges]），
+/// 登录态由原生主动推送（[NativeBridge.loginState]），
 /// 不再依赖 onResume 时的跨端轮询，前后台切换少一次通道往返。
 class MinePage extends StatefulWidget {
   const MinePage({super.key});
@@ -19,56 +21,69 @@ class MinePage extends StatefulWidget {
 class _MinePageState extends State<MinePage> {
   Map<String, dynamic>? _userInfo;
   bool _loading = true;
-  StreamSubscription<Map<String, dynamic>>? _loginStateSub;
 
   @override
   void initState() {
     super.initState();
-    // 订阅位置在 initState，取消在 dispose：页面销毁后不会再 setState
-    _loginStateSub = NativeBridge.loginStateChanges.listen(_applyLoginState);
-    _refresh();
+    NativeBridge.loginState.addListener(_onLoginStateChanged);
+    unawaited(_refresh());
   }
 
   @override
   void dispose() {
-    _loginStateSub?.cancel();
-    _loginStateSub = null;
+    // 移除监听，避免页面销毁后仍触发 setState
+    NativeBridge.loginState.removeListener(_onLoginStateChanged);
     super.dispose();
   }
 
-  void _applyLoginState(Map<String, dynamic> payload) {
-    if (!mounted) return;
-    setState(() {
-      _userInfo = payload['loggedIn'] == true ? payload : null;
-      _loading = false;
-    });
+  void _onLoginStateChanged() {
+    // 推送只带登录状态，不带昵称/token，所以状态变化后回查一次资料
+    unawaited(_refresh());
   }
 
   Future<void> _refresh() async {
+    if (!mounted) return;
     setState(() => _loading = true);
     final info = await NativeBridge.getUserInfo();
     if (!mounted) return;
+    final loggedIn = info?[BridgeProtocol.keyLoggedIn] == true;
     setState(() {
-      _userInfo = info;
+      _userInfo = loggedIn ? info : null;
       _loading = false;
     });
   }
 
   Future<void> _logout() async {
-    // 原生清空登录态后会主动推送 onLoginStateChanged，这里只负责交互反馈
-    await NativeBridge.logout();
+    try {
+      await NativeBridge.logout();
+    } on BridgeException catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('退出登录失败：${error.code}')));
+      return;
+    }
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('已退出登录')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('已退出登录')));
+  }
+
+  Future<void> _openLogin() async {
+    try {
+      await NativeBridge.openLogin();
+    } on BridgeException catch (error) {
+      // 登录页由原生实现，唤起失败保持当前游客态即可
+      debugPrint('openLogin failed: ${error.code}');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F9),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFE5353E),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         title: const Text('我的'),
         actions: [
@@ -94,14 +109,14 @@ class _MinePageState extends State<MinePage> {
 
   Widget _buildUserCard() {
     final loggedIn = _userInfo != null;
-    final nickname = _userInfo?['nickname'] as String? ?? '';
-    final token = _userInfo?['token'] as String? ?? '';
+    final nickname = _userInfo?[BridgeProtocol.keyNickname] as String? ?? '';
+    final token = _userInfo?[BridgeProtocol.keyToken] as String? ?? '';
     final maskedToken = token.length > 8
         ? '${token.substring(0, 4)}****${token.substring(token.length - 4)}'
         : (token.isEmpty ? '未登录' : token);
 
     return Container(
-      color: const Color(0xFFE5353E),
+      color: AppColors.primary,
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
       child: Row(
         children: [
@@ -113,7 +128,7 @@ class _MinePageState extends State<MinePage> {
               style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFFE5353E),
+                color: AppColors.primary,
               ),
             ),
           ),
@@ -134,7 +149,10 @@ class _MinePageState extends State<MinePage> {
                       const SizedBox(height: 4),
                       Text(
                         'Token: $maskedToken',
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   )
@@ -147,12 +165,9 @@ class _MinePageState extends State<MinePage> {
             FilledButton(
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.white,
-                foregroundColor: const Color(0xFFE5353E),
+                foregroundColor: AppColors.primary,
               ),
-              onPressed: () {
-                // 登录结果由原生推回（loginStateChanges），这里不再重复请求
-                NativeBridge.openLogin();
-              },
+              onPressed: _openLogin,
               child: const Text('登录'),
             )
           else
@@ -183,13 +198,16 @@ class _MinePageState extends State<MinePage> {
         children: [
           for (var i = 0; i < menus.length; i++)
             ListTile(
-              leading: Icon(menus[i].$1, color: const Color(0xFFE5353E)),
-              title: Text(menus[i].$2, style: const TextStyle(fontSize: 15)),
+              leading: Icon(menus[i].$1, color: AppColors.primary),
+              title: Text(
+                menus[i].$2,
+                style: const TextStyle(fontSize: AppTextSize.body),
+              ),
               trailing: const Icon(Icons.chevron_right, color: Colors.grey),
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${menus[i].$2}（演示页）')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('${menus[i].$2}（演示页）')));
               },
             ),
         ],
