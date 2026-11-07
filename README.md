@@ -26,7 +26,14 @@ planstar_hybrid_app/
 │   ├── settings.gradle       # AAR 仓库指向 ../flutter_module/build/host/outputs/repo
 │   └── gradlew(.bat)
 ├── flutter_module/           # Flutter 模块（Dart 代码 + AAR 产物）
-│   ├── lib/                  # main.dart、pages/、services/native_bridge.dart
+│   ├── lib/                  # 按 core / domain / data / presentation 分层
+│   │   ├── core/             # 路由表、主题、桥接协议等跨层基础设施
+│   │   ├── domain/           # 领域模型、仓库接口、用例（纯 Dart，不依赖 UI 与 IO）
+│   │   ├── data/             # DTO、Mapper、远程/本地数据源、仓库实现
+│   │   ├── presentation/     # 页面、组件、分页状态机（ChangeNotifier）
+│   │   ├── services/         # 原生桥接调用封装（NativeBridge）
+│   │   └── main.dart         # 模块入口：解析 initialRoute + 首帧埋点
+│   ├── test/                 # 桥接契约、分页状态机、DTO 映射单测
 │   ├── assets/fonts/         # 与设计稿一致的三套字体
 │   └── pubspec.yaml          # name: planstar_flutter + module 标识
 ├── ios_app/                  # iOS 原生宿主（Swift + UIKit）
@@ -34,8 +41,19 @@ planstar_hybrid_app/
 │   ├── Configs/              # Debug / Release / Profile 三套 xcconfig
 │   ├── PlanstarHybrid.xcodeproj
 │   └── Podfile               # install_all_flutter_pods('../flutter_module')
+├── .github/workflows/ci.yml  # CI：静态检查、单测、AAR 与 APK 构建
 └── README.md / LICENSE
 ```
+
+各层职责与依赖方向：
+
+| 层 | 职责 | 依赖方向 |
+|---|---|---|
+| `core` | 路由常量与归一化、主题、桥接协议常量（通道/方法/错误码） | 被所有层引用，不反向依赖 |
+| `domain` | `Book` / `BookPage` 等领域模型、仓库接口、业务用例 | 只依赖 Dart 与 core，不感知 Flutter UI |
+| `data` | Gutendex DTO 与解析、`BookMapper`、远程/本地数据源、仓库实现 | 实现 domain 接口，向上层屏蔽接口差异 |
+| `presentation` | 页面、可复用组件、`BookListState` 分页状态机 | 只依赖 domain / core，不直接拼装 HTTP |
+| `services` | `NativeBridge`：MethodChannel / EventChannel 调用与超时归一化 | 供 presentation 调用，协议常量来自 core |
 
 > 本地验证产物（原 APK 快照、一致性报告等）位于隐藏目录 `.verification/`，已在 `.gitignore` 中忽略。
 
@@ -93,16 +111,54 @@ open PlanstarHybrid.xcworkspace    # 必须打开 .xcworkspace
 
 ## 原生 ↔ Flutter 桥接契约
 
-| 方向 | 通道 | 方法 / 载荷 |
+| 方向 | 通道 | 方法 / 载荷 | 说明 |
+|---|---|---|---|
+| Flutter → 原生 | `com.yw.flutter.method_call` | `flutterReady`（握手）、`getUserInfo`、`getBaseUrl`、`logout`、`openLogin`、`openReader(bookId,title,author)` | 方法调用主通道 |
+| 原生 → Flutter | `com.yw.flutter.notify` | `userLoginStatus`，载荷 `"1"` 已登录 / `"2"` 未登录 | 单点状态通知 |
+| 原生 → Flutter | `com.yw.flutter.event` | `userLoginStatus`，载荷同上 | 事件通道广播，与 notify 双通道兼容 |
+
+错误码与触发条件：
+
+| 错误码 | 触发条件 | 调用方处理约定 |
 |---|---|---|
-| Flutter → 原生 | `com.yw.flutter.method_call` | `flutterReady`（握手）、`getUserInfo`、`getBaseUrl`、`logout`、`openLogin`、`openReader(bookId,title,author)` |
-| 原生 → Flutter | `com.yw.flutter.notify` | `userLoginStatus`，载荷 `"1"` 已登录 / `"2"` 未登录 |
+| `NOT_READY` | 尚未收到 `flutterReady` 握手时调用受限方法（`getUserInfo`/`getBaseUrl`/`logout`/`openLogin`/`openReader`） | 降级为游客态或提示重试，不阻塞页面渲染 |
+| `UNSUPPORTED` | 方法名未实现或两端版本不一致 | 记录日志并降级，不做无限重试 |
+| `TIMEOUT` | 原生 2 秒内未响应 | 抛 `BridgeException(TIMEOUT)`，页面进入可重试错误态 |
+| `INTERNAL` | 原生侧内部异常（`PlatformException` 无 code） | 抛 `BridgeException(INTERNAL)`，按失败处理 |
 
 两端宿主的行为保持一致：
 
-1. **引擎复用**：Android 侧按 route 缓存 `FlutterEngine`；iOS 用 `FlutterEngineGroup` 共享 VM/snapshot，每条路由一个引擎并缓存。
-2. **预热**：宿主首帧后 400ms 触发预热，iOS 第二个引擎再延迟 600ms，避免启动阶段长帧。
-3. **时序安全**：Dart 启动完成后回调 `flutterReady`；未就绪时原生发起的推送先入队（每路由上限 8 条），握手后补发，避免消息丢失。
+1. **未就绪返回错误而非静默成功**：引擎未完成握手时，原生对受限方法必须回 `NOT_READY`，不得返回 `null`/空数据，否则 Dart 侧会把「未就绪」误判成「无数据」。原生主动推送则走队列，等握手完成后再补发。
+2. **引擎复用**：Android 侧按 route 缓存 `FlutterEngine`（`FlutterEngineGroup` 共享 VM/snapshot）；iOS 同理，每条路由一个引擎并缓存。
+3. **时序安全**：Dart 启动完成后回调 `flutterReady`；未就绪期间原生发起的消息先入队（每路由上限 8 条），握手后 flush。
+
+## 性能优化
+
+- **引擎预热**：宿主首帧后延迟 400ms 创建书城引擎，再延迟 600ms 创建「我的」引擎，错峰避开启动阶段长帧。
+- **按路由缓存引擎**：Android 使用 `FlutterEngineCache` + `FlutterFragment.withCachedEngine(route)`，iOS 使用 `engines[route]`，切 Tab 不重复创建引擎。
+- **事件/消息队列上限 8**：每条路由的待发消息最多缓存 8 条，超出丢弃最旧一条，防止引擎长时间未就绪导致内存无界增长。
+- **列表 cacheExtent 600**：书城列表预构建一屏外内容，滚动时减少空白；详情/搜索页按需使用 400。
+- **图片 cacheWidth**：封面按 300px 宽度解码，降低大图带来的内存与解码开销。
+- **页面保活**：Android Tab 使用 `add/show/hide` 而非 `replace`，iOS 复用 `UITabBarController` 子控制器，切换后保留滚动位置与已加载数据。
+- **启动埋点**：Debug 下统一输出 `[PlanstarBridge] <event> route=... cost=...ms`，覆盖 `engine_create`、`tab_switch`、`first_frame` 三段耗时；Release 不输出。
+
+## CI
+
+`.github/workflows/ci.yml` 在 push / pull_request 到 `main` 时触发，`ubuntu-latest` 上依次执行四项检查（超时 20 分钟）：
+
+```bash
+# 工作目录 flutter_module
+flutter pub get
+flutter analyze --no-pub     # 1. 静态检查
+flutter test                 # 2. 单元测试
+flutter build aar            # 3. 构建 Flutter AAR
+
+# 工作目录仓库根
+chmod +x android_app/gradlew
+./android_app/gradlew -p android_app :app:assembleDebug --no-daemon   # 4. 编译 Android Debug APK
+```
+
+构建成功后上传 `app-debug.apk` 产物，保留 7 天。
 
 ## 数据源
 
