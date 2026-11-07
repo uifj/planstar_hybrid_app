@@ -57,7 +57,7 @@ final class LoginViewController: UIViewController {
         contentStack.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(contentStack)
 
-        titleLabel.text = "起点读书"
+        titleLabel.text = "企划星"
         titleLabel.font = AppTheme.font(32, weight: .bold)
         titleLabel.textColor = AppTheme.primary
         titleLabel.textAlignment = .center

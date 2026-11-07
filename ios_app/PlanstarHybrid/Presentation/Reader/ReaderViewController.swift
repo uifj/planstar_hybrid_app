@@ -40,7 +40,7 @@ final class ReaderViewController: UIViewController {
 
     init(bookId: Int64, title: String, author: String, chapterCount: Int) {
         let resolvedTitle = title.isEmpty ? "示例书籍" : title
-        let resolvedAuthor = author.isEmpty ? "起点作者" : author
+        let resolvedAuthor = author.isEmpty ? "企划星作者" : author
         self.book = BookItem(bookId: bookId, bookName: resolvedTitle, author: resolvedAuthor)
         let total = max(chapterCount, 1)
         self.chapters = ServiceLocator.shared.loadChaptersUseCase(bookId: bookId, total: total)

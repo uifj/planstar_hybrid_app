@@ -1,6 +1,6 @@
 import Foundation
 
-/// 网络客户端（对应 Android 侧 OkHttp + Retrofit 的 `ApiClient` / `QdApiService`）。
+/// 网络客户端（对应 Android 侧 OkHttp + Retrofit 的 `ApiClient` / `PlanstarApiService`）。
 ///
 /// 与原项目的分层保持一致：
 /// - 统一 Header 注入（Accept / Authorization）
