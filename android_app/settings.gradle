@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'qidian_demo'
+rootProject.name = 'planstar_app'
 include ':app'

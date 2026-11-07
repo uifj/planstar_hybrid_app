@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.qidian.demo'
+    namespace 'top.planstar.app'
     compileSdk 36
 
     defaultConfig {
-        applicationId "com.qidian.demo"
+        applicationId "top.planstar.app"
         minSdk 24
         targetSdk 36
         versionCode 1
@@ -68,8 +68,8 @@ configurations.all {
 
 dependencies {
     // ===== Flutter 混合开发模块（flutter build aar 产物，坐标与 Flutter 官方集成说明一致）=====
-    debugImplementation "com.qidian.qidian_flutter:flutter_debug:1.0"
-    releaseImplementation "com.qidian.qidian_flutter:flutter_release:1.0"
+    debugImplementation "top.planstar.app.flutter:flutter_debug:1.0"
+    releaseImplementation "top.planstar.app.flutter:flutter_release:1.0"
 
     // ===== AndroidX 基础（版本取自原 APK META-INF/*.version）=====
     implementation 'androidx.core:core-ktx:1.7.0'
