@@ -1,0 +1,24 @@
+{
+  "source": [
+    "android_app\\app\\src\\main\\java\\com\\qidian\\demo\\presentation\\flutter\\BaseFlutterContainer.kt",
+    "flutter_module\\lib\\services\\native_bridge.dart"
+  ],
+  "channels": [
+    "com.yw.flutter.method_call",
+    "com.yw.flutter.notify"
+  ],
+  "methods": [
+    "flutterReady",
+    "getBaseUrl",
+    "getUserInfo",
+    "logout",
+    "openLogin",
+    "openReader",
+    "userLoginStatus"
+  ],
+  "routes": [
+    "/book_category",
+    "/book_detail",
+    "/mine"
+  ]
+}

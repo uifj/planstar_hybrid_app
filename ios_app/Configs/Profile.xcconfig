@@ -1,0 +1,3 @@
+// Profile 配置：Flutter 的 profile 模式复用 release 的 Pod 配置
+#include? "../Pods/Target Support Files/Pods-PlanstarHybrid/Pods-PlanstarHybrid.release.xcconfig"
+#include? "../../flutter_module/.ios/Flutter/Generated.xcconfig"

@@ -1,0 +1,58 @@
+{
+  "Data": {
+    "Books": [   
+      {
+        "BookId": 1031794030,
+        "BookName": "道诡异仙",
+        "AuthorName": "狐尾的笔",
+        "Author": "狐尾的笔",
+        "BookStatus": "完本",
+        "BookModel": 1,
+	    "Recommendation": "起点爆款，克系仙侠。诡异的天道，异常的仙佛，是真？是假？",
+        "FreeType":1
+      },
+      {
+        "BookId": 1019664125,
+        "BookName": "大奉打更人",
+        "AuthorName": "卖报小郎君",
+        "Author": "卖报小郎君",
+        "BookStatus":"完本",
+        "BookModel": 1,
+	    "Recommendation": "男子一觉醒来魂穿古代，没承想刚睁眼就惨遭流放。",
+	    "FreeType":1
+      },
+      {
+        "BookId": 1043182343,
+        "BookName": "苟在初圣魔门当人材",
+        "AuthorName": "鹤守月满池",
+        "Author": "鹤守月满池",
+        "BookStatus":"连载",
+        "BookModel": 1,
+	    "Recommendation": "\"死百次就无敌\"，被师姐师兄连环背刺的摆烂魔修，竟苟成初圣宗活阎王。",
+        "FreeType":1
+      },
+      {
+        "BookId": 1042256511,
+        "BookName": "没钱修什么仙？",
+        "AuthorName": "熊狼狗",
+        "Author": "熊狼狗",
+        "BookStatus":"连载",
+        "BookModel": 1,
+		"Recommendation": "你还在被强者侮辱吗？你还在被师尊视为垃圾吗？法力贷了解下，一键传输百年功力。",
+        "FreeType":1
+      },
+      {
+        "BookId": 1017281778,
+        "BookName": "绍宋",
+        "AuthorName": "榴弹怕水",
+        "Author": "榴弹怕水",
+        "BookStatus":"完本",
+        "BookModel": 1,
+	    "Recommendation": "他在无可奈何继承了大宋的名号后，更要将这个朝廷与天下导向一条新路。",
+        "FreeType":1
+      }
+    ]
+  },
+  "Result": 0,
+  "Message": "成功"
+}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">起点Demo</string>
+
+    <string name="login_title">起点读书</string>
+    <string name="login_subtitle">原生 + Flutter 混合开发 Demo</string>
+    <string name="login_username_hint">手机号 / 用户名</string>
+    <string name="login_password_hint">密码</string>
+    <string name="login_button">登 录</string>
+    <string name="login_hint">演示账号：demo　密码：123456（无网络时本地校验）</string>
+    <string name="login_loading">登录中…</string>
+    <string name="login_error_empty">请输入账号和密码</string>
+
+    <string name="tab_bookshelf">书架</string>
+    <string name="tab_bookcity">书城</string>
+    <string name="tab_listening">听书</string>
+    <string name="tab_mine">我的</string>
+
+    <string name="bookshelf_title">我的书架</string>
+    <string name="bookshelf_empty">书架空空如也，去书城逛逛吧</string>
+    <string name="bookshelf_loading">加载中…</string>
+    <string name="bookshelf_source_network">网络书单</string>
+    <string name="bookshelf_source_local">本地书单</string>
+
+    <string name="listening_title">听书</string>
+</resources>

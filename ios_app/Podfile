@@ -1,0 +1,26 @@
+platform :ios, '15.0'
+
+# 关闭 CocoaPods 匿名统计上报
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
+# 本工程包含 Debug / Release / Profile 三套配置（与 Flutter 的构建模式对齐）
+project 'PlanstarHybrid', {
+  'Debug' => :debug,
+  'Profile' => :release,
+  'Release' => :release,
+}
+
+# Flutter 混合开发模块：与 ios_app 同级的 flutter_module
+flutter_application_path = File.expand_path('../flutter_module', __dir__)
+
+# podhelper.rb 会注入 Flutter.framework / App.framework / FlutterPluginRegistrant，
+# 并为主工程追加 "Run Flutter Build" 与 "Embed Flutter" 两个脚本阶段。
+load File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')
+
+target 'PlanstarHybrid' do
+  install_all_flutter_pods(flutter_application_path)
+end
+
+post_install do |installer|
+  flutter_post_install(installer)
+end

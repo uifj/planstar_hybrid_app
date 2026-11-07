@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_bookshelf"
+        android:icon="@drawable/ic_tab_bookshelf"
+        android:title="@string/tab_bookshelf" />
+    <item
+        android:id="@+id/nav_bookcity"
+        android:icon="@drawable/ic_tab_bookcity"
+        android:title="@string/tab_bookcity" />
+    <item
+        android:id="@+id/nav_listening"
+        android:icon="@drawable/ic_tab_listening"
+        android:title="@string/tab_listening" />
+    <item
+        android:id="@+id/nav_mine"
+        android:icon="@drawable/ic_tab_mine"
+        android:title="@string/tab_mine" />
+</menu>

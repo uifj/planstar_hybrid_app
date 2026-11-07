@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ===== 原项目设计令牌（提取自 com.qidian.QDReader 资源表） ===== -->
+    <color name="primary">#E5353E</color>
+    <color name="primary_dark">#D23E3B</color>
+    <color name="text_primary">#333333</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_tertiary">#999999</color>
+    <!-- 兼容旧引用 -->
+    <color name="text_grey">#9E9E9E</color>
+    <color name="bg_grey">#F5F5F5</color>
+    <color name="divider">#E6E6E6</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- ===== 阅读页主题背景（对应原项目阅读设置） ===== -->
+    <color name="reader_bg_white">#FFFFFF</color>
+    <color name="reader_text_white">#333333</color>
+    <color name="reader_bg_sepia">#F5E8D1</color>
+    <color name="reader_text_sepia">#5A4A32</color>
+    <color name="reader_bg_green">#D7EFD5</color>
+    <color name="reader_text_green">#3B4A3B</color>
+    <color name="reader_bg_black">#000000</color>
+    <color name="reader_text_black">#8A8A8A</color>
+</resources>

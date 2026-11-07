@@ -1,0 +1,23 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        // Flutter 混合开发模块的 AAR 仓库（flutter build aar 产物）。
+        // 用相对路径定位同级 flutter_module，保证整个工程目录可整体搬迁。
+        maven { url new File(settingsDir.parentFile, 'flutter_module/build/host/outputs/repo') }
+        // Flutter 引擎（libflutter 等）制品仓库
+        maven { url 'https://storage.googleapis.com/download.flutter.io' }
+    }
+}
+
+rootProject.name = 'qidian_demo'
+include ':app'

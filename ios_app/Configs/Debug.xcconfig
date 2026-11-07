@@ -1,0 +1,3 @@
+// Debug 配置：CocoaPods（可选，首次 pod install 前不存在）+ Flutter 工具链变量
+#include? "../Pods/Target Support Files/Pods-PlanstarHybrid/Pods-PlanstarHybrid.debug.xcconfig"
+#include? "../../flutter_module/.ios/Flutter/Generated.xcconfig"

@@ -1,0 +1,51 @@
+# ---------- Flutter / Dart ----------
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+*.log
+
+# Flutter module 生成的 Android 宿主（可重新生成）
+flutter_module/.android/
+
+# Flutter module 生成的 iOS 临时产物（保留 podhelper.rb 与 Runner 工程）
+flutter_module/.ios/Flutter/Generated.xcconfig
+flutter_module/.ios/Flutter/flutter_export_environment.sh
+flutter_module/.ios/Flutter/ephemeral/
+
+# ---------- Android ----------
+.gradle/
+.kotlin/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.hprof
+
+# ---------- iOS ----------
+Pods/
+Podfile.lock
+DerivedData/
+*.xcworkspace/xcuserdata/
+**/xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+
+# ---------- IDE / 编辑器 ----------
+.idea/
+.vscode/
+*.iws
+*.suo
+
+# ---------- 系统 ----------
+.DS_Store
+Thumbs.db
+desktop.ini

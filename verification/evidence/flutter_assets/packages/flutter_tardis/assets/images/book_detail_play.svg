@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 书详情视频播放按钮（对齐 Android lib_ui_component/vector_book_detail_play.xml） -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <path fill="#FFFFFF" fill-rule="evenodd" d="M10.0168 19.6643L19.5748 14.146C21.2268 13.1922 21.2268 10.8078 19.5748 9.85399L10.0168 4.33569C8.3648 3.3819 6.2998 4.57413 6.2998 6.48169V17.5183C6.2998 19.4259 8.3648 20.6181 10.0168 19.6643Z"/>
+</svg>
